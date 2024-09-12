@@ -26,7 +26,7 @@ export function JoinGameForm() {
    }
 
    return (
-      <form action={handleJoin} className="relative h-16 w-[700px]">
+      <form action={handleJoin} className="relative h-16 w-full max-w-[700px]">
          <input
             className="h-full w-full rounded-full bg-[#1e1e1e] px-8 text-xl focus:outline-none"
             placeholder="Enter game ID"

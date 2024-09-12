@@ -1,7 +1,12 @@
 'use client'
 
+import { startGame } from '@/actions/start-game'
+import { Game, Player } from '@/types'
+import { playMove } from '@/utils/play-sound'
+import { sortPlayerKeepingMeFirst } from '@/utils/sort-player'
 import {
    IconCircle,
+   IconCrown,
    IconSkull,
    IconSquare,
    IconStar,
@@ -9,14 +14,13 @@ import {
    IconUmbrella,
    IconUserCircle,
 } from '@tabler/icons-react'
+import { motion } from 'framer-motion'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
 import { io } from 'socket.io-client'
 import { SugarCard } from './sugar-card'
-import { Game, Player } from '@/types'
-import { sortPlayerKeepingMeFirst } from '@/utils/sort-player'
-import { startGame } from '@/actions/start-game'
-import toast from 'react-hot-toast'
+import { playAgain } from '@/actions/play-again'
 
 interface Session {
    guest_id: string
@@ -54,19 +58,24 @@ export default function GameBoard({ session }: { session: Session }) {
       socket.on('connect', () => {
          console.log('user connected')
       })
-      socket.on('pursuit-of-card', (data) => {
-         setGame(data)
-      })
+      if (params?.game_id) {
+         socket.on(`pursuit-of-card-${params.game_id}`, (data) => {
+            playMove()
+            setGame(data)
+         })
+      }
       return () => {
          socket.close()
       }
-   }, [])
+   }, [params.game_id])
 
    let mydetails: Player | null = null,
       isHost: boolean = false,
       isNotStarted: boolean = false,
+      isMyMove: boolean = false,
+      isGameEnd: boolean = false,
+      turnPlayer: Player | null = null,
       joinedPlayers: Player[] = []
-   console.log(game)
    if (game) {
       mydetails =
          game.player.find((p) => p.guest_id === session.guest_id) || null
@@ -77,6 +86,11 @@ export default function GameBoard({ session }: { session: Session }) {
          )
       }
       isNotStarted = game.player.every((p) => !p.turn)
+      isGameEnd = game.player.filter((p) => p?.status === 'winner').length === 3
+      if (!isNotStarted) {
+         turnPlayer = game.player.find((p) => p.turn) || null
+         isMyMove = joinedPlayers[0].turn
+      }
    }
 
    isHost = mydetails?.role === 'host-player'
@@ -84,7 +98,20 @@ export default function GameBoard({ session }: { session: Session }) {
    const handleStart = async () => {
       try {
          await startGame(params.game_id as string)
-         toast.success('Hurray! game is start')
+         toast.success('Hurray! game is started')
+      } catch (error) {
+         if (error instanceof Error) {
+            toast.error(error.message)
+         } else {
+            toast.error('something went wrong')
+         }
+      }
+   }
+
+   const handlePlayAgain = async () => {
+      try {
+         await playAgain(params.game_id as string)
+         toast.success('Hurray! restarted game')
       } catch (error) {
          if (error instanceof Error) {
             toast.error(error.message)
@@ -97,6 +124,11 @@ export default function GameBoard({ session }: { session: Session }) {
    return (
       <>
          <div className="flex w-full max-w-3xl justify-between">
+            {!isNotStarted && turnPlayer && !isGameEnd && (
+               <h2 className="font-medium text-white/70 xl:text-3xl">
+                  Move : {turnPlayer.guest_name}
+               </h2>
+            )}
             {isNotStarted && isHost && (
                <button
                   onClick={handleStart}
@@ -105,93 +137,248 @@ export default function GameBoard({ session }: { session: Session }) {
                   Shuffling Cards And Start
                </button>
             )}
-            {game && (
-               <h2 className="text-3xl font-medium text-white/70">
-                  Game ID :{' '}
-                  <span className="text-pink-500">{game.game_id}</span>
-               </h2>
+            {isGameEnd && isHost && (
+               <button
+                  onClick={handlePlayAgain}
+                  className="rounded-md bg-green-400 px-4 py-2 font-medium text-black"
+               >
+                  Play Again
+               </button>
             )}
          </div>
          <div className="flex h-96 w-full max-w-3xl flex-col justify-between rounded-md bg-[#1818188a] p-4 backdrop-blur-md">
             <div className="flex justify-evenly">
                <div className="flex flex-col items-center">
-                  <IconUserCircle
-                     stroke={1}
-                     className={`h-10 w-10 md:h-20 md:w-20 ${joinedPlayers[3] ? 'text-[#069aa2]' : 'text-gray-500'}`}
-                  />
-                  <span
-                     className={`text-sm ${joinedPlayers[3] ? 'text-white/75' : 'text-gray-500'}`}
-                  >
-                     {joinedPlayers[3] ? joinedPlayers[3].guest_name : 'Empty'}
-                  </span>
+                  <div className="relative">
+                     {joinedPlayers[3]?.status === 'winner' && (
+                        <>
+                           <IconCrown
+                              className="absolute -top-6 left-1/2 size-10 -translate-x-1/2 text-orange-400"
+                              stroke={1}
+                           />
+                           <h4 className="absolute left-1/2 top-1/2 flex size-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center gap-x-[-2px] rounded-full bg-black text-3xl font-bold">
+                              #{joinedPlayers[3].rank}
+                           </h4>
+                        </>
+                     )}
+                     <IconUserCircle
+                        stroke={1}
+                        className={`size-20 ${joinedPlayers[3] ? 'text-[#07c6d0]' : 'text-gray-500'}`}
+                     />
+                     {!isNotStarted &&
+                        turnPlayer?.position === joinedPlayers[3]?.position &&
+                        !isGameEnd && (
+                           <motion.span
+                              layoutId="indicator"
+                              transition={{
+                                 type: 'spring',
+                                 stiffness: 100,
+                                 damping: 50,
+                              }}
+                              className="absolute right-0 top-0 h-4 w-4 rounded-full bg-green-500"
+                           />
+                        )}
+                     <span
+                        className={`absolute -bottom-5 left-1/2 line-clamp-1 w-32 -translate-x-1/2 text-center text-sm ${joinedPlayers[3] ? 'text-white/75' : 'text-gray-500'}`}
+                     >
+                        {joinedPlayers[3]
+                           ? joinedPlayers[3].guest_name
+                           : 'Empty'}
+                     </span>
+                  </div>
                </div>
                <div className="flex flex-col items-center">
-                  <IconUserCircle
-                     stroke={1}
-                     className={`h-10 w-10 md:h-20 md:w-20 ${joinedPlayers[2] ? 'text-[#069aa2]' : 'text-gray-500'}`}
-                  />
-                  <span
-                     className={`text-sm ${joinedPlayers[2] ? 'text-white/75' : 'text-gray-500'}`}
-                  >
-                     {joinedPlayers[2] ? joinedPlayers[2].guest_name : 'Empty'}
-                  </span>
+                  <div className="relative">
+                     {joinedPlayers[2]?.status === 'winner' && (
+                        <>
+                           <IconCrown
+                              className="absolute -top-6 left-1/2 size-10 -translate-x-1/2 text-orange-400"
+                              stroke={1}
+                           />
+                           <h4 className="absolute left-1/2 top-1/2 flex size-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center gap-x-[-2px] rounded-full bg-black text-3xl font-bold">
+                              #{joinedPlayers[2].rank}
+                           </h4>
+                        </>
+                     )}
+                     <IconUserCircle
+                        stroke={1}
+                        className={`size-20 md:h-20 md:w-20 ${joinedPlayers[2] ? 'text-[#07c6d0]' : 'text-gray-500'}`}
+                     />
+                     {!isNotStarted &&
+                        turnPlayer?.position === joinedPlayers[2]?.position &&
+                        !isGameEnd && (
+                           <motion.span
+                              layoutId="indicator"
+                              transition={{
+                                 type: 'spring',
+                                 stiffness: 100,
+                                 damping: 50,
+                              }}
+                              className="absolute right-0 top-0 h-4 w-4 rounded-full bg-green-500"
+                           />
+                        )}
+                     <span
+                        className={`absolute -bottom-5 left-1/2 line-clamp-1 w-32 -translate-x-1/2 text-center text-sm ${joinedPlayers[2] ? 'text-white/75' : 'text-gray-500'}`}
+                     >
+                        {joinedPlayers[2]
+                           ? joinedPlayers[2].guest_name
+                           : 'Empty'}
+                     </span>
+                  </div>
                </div>
             </div>
-            <div className="flex justify-between">
+            <div className="flex items-center justify-between">
                <div className="flex flex-col items-center">
-                  <IconUserCircle
-                     stroke={1}
-                     className={`h-10 w-10 md:h-20 md:w-20 ${joinedPlayers[4] ? 'text-[#069aa2]' : 'text-gray-500'}`}
-                  />
-                  <span
-                     className={`text-sm ${joinedPlayers[4] ? 'text-white/75' : 'text-gray-500'}`}
-                  >
-                     {joinedPlayers[4] ? joinedPlayers[4].guest_name : 'Empty'}
-                  </span>
+                  <div className="relative">
+                     {joinedPlayers[4]?.status === 'winner' && (
+                        <>
+                           <IconCrown
+                              className="absolute -top-6 left-1/2 size-10 -translate-x-1/2 text-orange-400"
+                              stroke={1}
+                           />
+                           <h4 className="absolute left-1/2 top-1/2 flex size-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center gap-x-[-2px] rounded-full bg-black text-3xl font-bold">
+                              #{joinedPlayers[4].rank}
+                           </h4>
+                        </>
+                     )}
+                     <IconUserCircle
+                        stroke={1}
+                        className={`size-20 md:h-20 md:w-20 ${joinedPlayers[4] ? 'text-[#07c6d0]' : 'text-gray-500'}`}
+                     />
+                     {!isNotStarted &&
+                        turnPlayer?.position === joinedPlayers[4]?.position &&
+                        !isGameEnd && (
+                           <motion.span
+                              layoutId="indicator"
+                              transition={{
+                                 type: 'spring',
+                                 stiffness: 100,
+                                 damping: 50,
+                              }}
+                              className="absolute right-0 top-0 h-4 w-4 rounded-full bg-green-500"
+                           />
+                        )}
+                     <span
+                        className={`absolute -bottom-5 left-1/2 line-clamp-1 w-32 -translate-x-1/2 text-center text-sm ${joinedPlayers[4] ? 'text-white/75' : 'text-gray-500'}`}
+                     >
+                        {joinedPlayers[4]
+                           ? joinedPlayers[4].guest_name
+                           : 'Empty'}
+                     </span>
+                  </div>
+               </div>
+               <div>
+                  <h1 className="text-4xl font-semibold">
+                     {isGameEnd
+                        ? 'Game Ended'
+                        : game?.game_id
+                          ? `ID: ${game?.game_id}`
+                          : null}
+                  </h1>
                </div>
                <div className="flex flex-col items-center">
-                  <IconUserCircle
-                     stroke={1}
-                     className={`h-10 w-10 md:h-20 md:w-20 ${joinedPlayers[1] ? 'text-[#069aa2]' : 'text-gray-500'}`}
-                  />
-                  <span
-                     className={`text-sm ${joinedPlayers[1] ? 'text-white/75' : 'text-gray-500'}`}
-                  >
-                     {joinedPlayers[1] ? joinedPlayers[1].guest_name : 'Empty'}
-                  </span>
+                  <div className="relative">
+                     {joinedPlayers[1]?.status === 'winner' && (
+                        <>
+                           <IconCrown
+                              className="absolute -top-6 left-1/2 size-10 -translate-x-1/2 text-orange-400"
+                              stroke={1}
+                           />
+                           <h4 className="absolute left-1/2 top-1/2 flex size-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center gap-x-[-2px] rounded-full bg-black text-3xl font-bold">
+                              #{joinedPlayers[1].rank}
+                           </h4>
+                        </>
+                     )}
+                     <IconUserCircle
+                        stroke={1}
+                        className={`size-20 md:h-20 md:w-20 ${joinedPlayers[1] ? 'text-[#07c6d0]' : 'text-gray-500'}`}
+                     />
+                     {!isNotStarted &&
+                        turnPlayer?.position === joinedPlayers[1]?.position &&
+                        !isGameEnd && (
+                           <motion.span
+                              layoutId="indicator"
+                              transition={{
+                                 type: 'spring',
+                                 stiffness: 100,
+                                 damping: 50,
+                              }}
+                              className="absolute right-0 top-0 h-4 w-4 rounded-full bg-green-500"
+                           />
+                        )}
+                     <span
+                        className={`absolute -bottom-5 left-1/2 line-clamp-1 w-32 -translate-x-1/2 text-center text-sm ${joinedPlayers[1] ? 'text-white/75' : 'text-gray-500'}`}
+                     >
+                        {joinedPlayers[1]
+                           ? joinedPlayers[1].guest_name
+                           : 'Empty'}
+                     </span>
+                  </div>
                </div>
             </div>
             <div>
-               <h2 className="mb-4 text-center text-xl">
-                  {joinedPlayers[0]?.guest_name}
-               </h2>
+               <div className="flex justify-center">
+                  <div className="relative mb-4 text-center text-xl">
+                     {joinedPlayers[0]?.status === 'winner' && (
+                        <div className="absolute -top-10 left-1/2 flex -translate-x-1/2 items-center">
+                           <span className="text-3xl font-bold">
+                              #{joinedPlayers[0].rank}
+                           </span>
+                           <IconCrown
+                              className="size-12 text-orange-400"
+                              stroke={1}
+                           />
+                        </div>
+                     )}
+                     <h2>{joinedPlayers[0]?.guest_name}</h2>
+                     {!isNotStarted &&
+                        turnPlayer?.position === joinedPlayers[0]?.position &&
+                        !isGameEnd && (
+                           <motion.span
+                              layoutId="indicator"
+                              transition={{
+                                 type: 'spring',
+                                 stiffness: 100,
+                                 damping: 50,
+                              }}
+                              className="absolute -right-5 top-0 h-4 w-4 rounded-full bg-green-500"
+                           />
+                        )}
+                  </div>
+               </div>
                <div className="flex justify-center gap-4">
                   {isNotStarted && (
                      <IconUserCircle
                         stroke={1}
-                        className={`h-10 w-10 text-[#069aa2] md:h-20 md:w-20`}
+                        className={`size-20 text-[#07c6d0]`}
                      />
                   )}
-                  {joinedPlayers[0]?.cards.map((card) => {
+                  {joinedPlayers[0]?.cards.map((card, i) => {
                      return (
-                        <SugarCard>
+                        <SugarCard
+                           player={joinedPlayers[0]}
+                           card={card}
+                           key={i}
+                           index={i}
+                           isMyMove={isMyMove}
+                           game_id={params.game_id as string}
+                           isGameEnd={isGameEnd}
+                        >
                            {card === 'circle' && (
-                              <IconCircle className="h-10 w-10" />
+                              <IconCircle className="size-10" />
                            )}
                            {card === 'triangle' && (
-                              <IconTriangle className="h-10 w-10" />
+                              <IconTriangle className="size-10" />
                            )}
-                           {card === 'star' && (
-                              <IconStar className="h-10 w-10" />
-                           )}
+                           {card === 'star' && <IconStar className="size-10" />}
                            {card === 'umbrella' && (
-                              <IconUmbrella className="h-10 w-10" />
+                              <IconUmbrella className="size-10" />
                            )}
                            {card === 'square' && (
-                              <IconSquare className="h-10 w-10" />
+                              <IconSquare className="size-10" />
                            )}
                            {card === 'phantom' && (
-                              <IconSkull className="h-10 w-10" />
+                              <IconSkull className="size-10" />
                            )}
                         </SugarCard>
                      )

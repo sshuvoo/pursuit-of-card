@@ -8,7 +8,7 @@ export default async function GameBoardPage() {
    if (!session) redirect('/guest-login')
 
    return (
-      <main className="flex min-h-screen flex-col items-center justify-center gap-8">
+      <main className="flex min-h-screen flex-col items-center justify-center gap-8 p-2 xl:p-4">
          <GameBoard session={session} />
       </main>
    )

@@ -9,8 +9,8 @@ export default async function Home() {
    if (!session) redirect('/guest-login')
 
    return (
-      <main className="flex min-h-screen flex-col items-center justify-center gap-8">
-         <h1 className="text-5xl font-semibold text-[#d3d3d3]">
+      <main className="flex min-h-screen flex-col items-center justify-center gap-8 p-2 xl:p-4">
+         <h1 className="text-3xl font-semibold text-[#d3d3d3] md:text-4xl xl:text-5xl">
             Welcome, {session.guest_name}
          </h1>
          <div className="grid w-full max-w-xl grid-cols-2 gap-4">

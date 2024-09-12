@@ -17,4 +17,6 @@ export type Player = {
    prev_receive?: string
    cards: string[]
    _id: string
+   status: 'playing' | 'winner' | 'loser'
+   rank: number
 }

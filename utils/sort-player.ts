@@ -4,6 +4,9 @@ export const sortPlayerKeepingMeFirst = (
    players: Player[],
    my_position: number,
 ) => {
-   const index = players.findIndex((player) => player.position === my_position)
-   return [...players.slice(index), ...players.slice(0, index)]
+   const sortPlayers = players.sort((a, b) => a.position - b.position)
+   const index = sortPlayers.findIndex(
+      (player) => player.position === my_position,
+   )
+   return [...sortPlayers.slice(index), ...sortPlayers.slice(0, index)]
 }
