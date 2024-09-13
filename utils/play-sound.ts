@@ -24,8 +24,8 @@ export function playGameOver() {
 }
 
 export function playJoinPlayer() {
-   const audio1 = new Audio('/assets/audio/join1-mp3')
-   const audio2 = new Audio('/assets/audio/join2-mp3')
-   const audio3 = new Audio('/assets/audio/join3-mp3')
+   const audio1 = new Audio('/assets/audio/join1.mp3')
+   const audio2 = new Audio('/assets/audio/join2.mp3')
+   const audio3 = new Audio('/assets/audio/join3.mp3')
    ;[audio1, audio2, audio3][Math.floor(Math.random() * 3)].play()
 }
