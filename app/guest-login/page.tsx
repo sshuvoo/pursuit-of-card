@@ -1,5 +1,6 @@
 import { auth } from '@/actions/auth'
 import { GuestLoginForm } from '@/components/guest-login/guest-login-form'
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
 export default async function GuestLogin() {
@@ -12,6 +13,9 @@ export default async function GuestLogin() {
             Welcome to Pursuit of Card
          </h1>
          <GuestLoginForm />
+         <Link className="underline" href={'/guidelines'}>
+            Guidelines
+         </Link>
       </main>
    )
 }

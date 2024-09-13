@@ -6,6 +6,7 @@ import { Game, Player } from '@/types'
 import {
    playGameOver,
    playJoinPlayer,
+   playMessageNotification,
    playMove,
    playShuffleCards,
    playVictory,
@@ -22,14 +23,21 @@ import {
    IconUserCircle,
 } from '@tabler/icons-react'
 import { motion } from 'framer-motion'
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { io } from 'socket.io-client'
+import { GameChatForm } from './game-chat-form'
 import { SugarCard } from './sugar-card'
 
 interface Session {
    guest_id: string
    guest_name: string
+}
+
+interface Chat {
+   message: string | null
+   guest_id: string | null
 }
 
 export default function GameBoard({
@@ -42,14 +50,31 @@ export default function GameBoard({
    game_id: string
 }) {
    const [game, setGame] = useState<Game | null>(game_data)
+   const [chats, setChats] = useState<Chat[]>([])
 
    useEffect(() => {
       const socket = io(process.env.NEXT_PUBLIC_BASE_URL!, {
          withCredentials: true,
       })
-
       socket.on('connect', () => {
          console.log('user connected')
+      })
+      socket.on(`game-chat-${game_id}`, (res_data: Chat) => {
+         if (res_data.guest_id !== session.guest_id) {
+            playMessageNotification()
+         }
+         setChats((prev) => [
+            ...prev.filter((chat) => chat.guest_id !== res_data.guest_id),
+            {
+               message: res_data.message,
+               guest_id: res_data.guest_id,
+            },
+         ])
+         setTimeout(() => {
+            setChats((prev) =>
+               prev.filter((chat) => chat.guest_id !== res_data.guest_id),
+            )
+         }, 5000)
       })
       socket.on(`game-start-${game_id}`, playShuffleCards)
       socket.on(`game-over-${game_id}`, playGameOver)
@@ -71,7 +96,7 @@ export default function GameBoard({
       return () => {
          socket.close()
       }
-   }, [game_id])
+   }, [game_id, session.guest_id])
 
    let mydetails: Player | null = null,
       isHost: boolean = false,
@@ -125,6 +150,19 @@ export default function GameBoard({
       }
    }
 
+   const playerMessage1 = chats.find(
+      (chat) => chat.guest_id === joinedPlayers[1]?.guest_id,
+   )
+   const playerMessage2 = chats.find(
+      (chat) => chat.guest_id === joinedPlayers[2]?.guest_id,
+   )
+   const playerMessage3 = chats.find(
+      (chat) => chat.guest_id === joinedPlayers[3]?.guest_id,
+   )
+   const playerMessage4 = chats.find(
+      (chat) => chat.guest_id === joinedPlayers[4]?.guest_id,
+   )
+
    return (
       <>
          <div className="flex w-full max-w-3xl justify-between">
@@ -149,11 +187,22 @@ export default function GameBoard({
                   Play Again
                </button>
             )}
+            <Link className="underline" href={'/guidelines'}>
+               Guidelines
+            </Link>
          </div>
-         <div className="flex h-96 w-full max-w-3xl flex-col justify-between rounded-md bg-[#1818188a] p-4 backdrop-blur-md">
+         <div className="flex w-full max-w-3xl flex-col justify-between gap-4 rounded-md bg-[#1818188a] p-4 backdrop-blur-md xl:gap-8 xl:p-8">
             <div className="flex justify-evenly">
                <div className="flex flex-col items-center">
                   <div className="relative">
+                     {playerMessage3 && (
+                        <div
+                           className="absolute -top-10 left-1/2 z-[100] w-52 -translate-x-1/2 rounded-lg border border-[#3c3c3c] bg-green-50 p-2 text-xs text-green-800 dark:bg-black dark:text-green-400 font-semibold"
+                           role="alert"
+                        >
+                           {playerMessage3.message}
+                        </div>
+                     )}
                      {joinedPlayers[3]?.status === 'winner' && (
                         <>
                            <IconCrown
@@ -193,6 +242,14 @@ export default function GameBoard({
                </div>
                <div className="flex flex-col items-center">
                   <div className="relative">
+                     {playerMessage2 && (
+                        <div
+                           className="absolute -top-10 right-1/2 z-[100] w-52 translate-x-1/2 rounded-lg border border-[#3c3c3c] bg-green-50 p-2 text-xs text-green-800 dark:bg-black dark:text-green-400"
+                           role="alert"
+                        >
+                           {playerMessage2.message}
+                        </div>
+                     )}
                      {joinedPlayers[2]?.status === 'winner' && (
                         <>
                            <IconCrown
@@ -234,6 +291,14 @@ export default function GameBoard({
             <div className="flex items-center justify-between">
                <div className="flex flex-col items-center">
                   <div className="relative">
+                     {playerMessage4 && (
+                        <div
+                           className="absolute -bottom-12 left-0 z-[100] w-52 rounded-lg border border-[#3c3c3c] bg-green-50 p-2 text-xs text-green-800 dark:bg-black dark:text-green-400"
+                           role="alert"
+                        >
+                           {playerMessage4.message}
+                        </div>
+                     )}
                      {joinedPlayers[4]?.status === 'winner' && (
                         <>
                            <IconCrown
@@ -282,6 +347,14 @@ export default function GameBoard({
                </div>
                <div className="flex flex-col items-center">
                   <div className="relative">
+                     {playerMessage1 && (
+                        <div
+                           className="absolute -bottom-12 right-0 z-[100] w-52 rounded-lg border border-[#3c3c3c] bg-green-50 p-2 text-xs text-green-800 dark:bg-black dark:text-green-400"
+                           role="alert"
+                        >
+                           {playerMessage1.message}
+                        </div>
+                     )}
                      {joinedPlayers[1]?.status === 'winner' && (
                         <>
                            <IconCrown
@@ -390,6 +463,7 @@ export default function GameBoard({
                </div>
             </div>
          </div>
+         <GameChatForm game_id={game_id} />
       </>
    )
 }

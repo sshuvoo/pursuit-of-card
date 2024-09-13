@@ -13,9 +13,14 @@ export default async function GuestLogin() {
             Are you ready to play?
          </h1>
          <JoinGameForm />
-         <Link className="underline" href={'/'}>
-            Host a game & enjoy with friends
-         </Link>
+         <div className="flex gap-2">
+            <Link className="underline" href={'/'}>
+               Host a game & enjoy with friends
+            </Link>
+            <Link className="underline" href={'/guidelines'}>
+               Guidelines
+            </Link>
+         </div>
       </main>
    )
 }

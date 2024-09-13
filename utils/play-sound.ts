@@ -28,6 +28,12 @@ export function playGameOver() {
    audio.play()
 }
 
+export function playMessageNotification() {
+   const audio = new Audio('/assets/audio/message-notification.mp3')
+   audio.volume = 0.5
+   audio.play()
+}
+
 export function playJoinPlayer() {
    const audio1 = new Audio('/assets/audio/join1.mp3')
    const audio2 = new Audio('/assets/audio/join2.mp3')

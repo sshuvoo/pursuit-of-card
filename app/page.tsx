@@ -23,6 +23,9 @@ export default async function Home() {
                <IconDeviceGamepad2 />
             </Link>
          </div>
+         <Link className="underline" href={'/guidelines'}>
+            Guidelines
+         </Link>
       </main>
    )
 }
