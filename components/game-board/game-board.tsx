@@ -3,7 +3,12 @@
 import { playAgain } from '@/actions/play-again'
 import { startGame } from '@/actions/start-game'
 import { Game, Player } from '@/types'
-import { playMove } from '@/utils/play-sound'
+import {
+   playGameOver,
+   playJoinPlayer,
+   playMove,
+   playVictory,
+} from '@/utils/play-sound'
 import { sortPlayerKeepingMeFirst } from '@/utils/sort-player'
 import {
    IconCircle,
@@ -41,12 +46,19 @@ export default function GameBoard({
       const socket = io(process.env.NEXT_PUBLIC_BASE_URL!, {
          withCredentials: true,
       })
+
       socket.on('connect', () => {
          console.log('user connected')
       })
 
+      socket.on(`game-over-${game_id}`, playGameOver)
+      socket.on(`card-move-${game_id}`, playMove)
+      socket.on(`victory-${game_id}`, playVictory)
+      socket.on(`join-player-${game_id}`, (player_name: string) => {
+         playJoinPlayer()
+         toast.success(`${player_name} is joined`)
+      })
       socket.on(`pursuit-of-card-${game_id}`, (data) => {
-         playMove()
          setGame(data)
       })
       return () => {
