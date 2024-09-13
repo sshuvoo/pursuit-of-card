@@ -33,7 +33,6 @@ export function SugarCard({
       playClick()
       try {
          await moveCard(card, player.position, game_id)
-         toast.success('Wow! great move')
       } catch (error) {
          if (error instanceof Error) {
             toast.error(error.message)

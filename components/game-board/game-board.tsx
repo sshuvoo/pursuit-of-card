@@ -7,6 +7,7 @@ import {
    playGameOver,
    playJoinPlayer,
    playMove,
+   playShuffleCards,
    playVictory,
 } from '@/utils/play-sound'
 import { sortPlayerKeepingMeFirst } from '@/utils/sort-player'
@@ -50,10 +51,16 @@ export default function GameBoard({
       socket.on('connect', () => {
          console.log('user connected')
       })
-
+      socket.on(`game-start-${game_id}`, playShuffleCards)
       socket.on(`game-over-${game_id}`, playGameOver)
       socket.on(`card-move-${game_id}`, playMove)
-      socket.on(`victory-${game_id}`, playVictory)
+      socket.on(
+         `victory-${game_id}`,
+         ({ player_name, rank }: { player_name: string; rank: number }) => {
+            playVictory()
+            toast.success(`${player_name} is placed #${rank}`)
+         },
+      )
       socket.on(`join-player-${game_id}`, (player_name: string) => {
          playJoinPlayer()
          toast.success(`${player_name} is joined`)
@@ -265,7 +272,7 @@ export default function GameBoard({
                   </div>
                </div>
                <div>
-                  <h1 className="text-4xl font-semibold">
+                  <h1 className="text-2xl font-semibold xl:text-4xl">
                      {isGameEnd
                         ? 'Game Ended'
                         : game?.game_id

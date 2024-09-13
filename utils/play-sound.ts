@@ -18,6 +18,11 @@ export function playVictory() {
    audio.play()
 }
 
+export function playShuffleCards() {
+   const audio = new Audio('/assets/audio/shuffling-cards.mp3')
+   audio.play()
+}
+
 export function playGameOver() {
    const audio = new Audio('/assets/audio/game-over.mp3')
    audio.play()
