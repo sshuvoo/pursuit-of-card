@@ -1,5 +1,6 @@
 'use client'
 
+import { playAgain } from '@/actions/play-again'
 import { startGame } from '@/actions/start-game'
 import { Game, Player } from '@/types'
 import { playMove } from '@/utils/play-sound'
@@ -15,41 +16,26 @@ import {
    IconUserCircle,
 } from '@tabler/icons-react'
 import { motion } from 'framer-motion'
-import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { io } from 'socket.io-client'
 import { SugarCard } from './sugar-card'
-import { playAgain } from '@/actions/play-again'
 
 interface Session {
    guest_id: string
    guest_name: string
 }
 
-export default function GameBoard({ session }: { session: Session }) {
-   const [game, setGame] = useState<Game | null>(null)
-   const params = useParams()
-   const router = useRouter()
-
-   useEffect(() => {
-      let ignore = false
-      const startFetching = async () => {
-         const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BASE_URL}/api/get-game/${params.game_id}`,
-            { credentials: 'include' },
-         )
-         if (response.status === 404) router.push('/join-game')
-         if (response.ok && !ignore) {
-            const json = await response.json()
-            setGame(json)
-         }
-      }
-      startFetching()
-      return () => {
-         ignore = true
-      }
-   }, [params.game_id, router])
+export default function GameBoard({
+   session,
+   game_data,
+   game_id,
+}: {
+   session: Session
+   game_data: Game
+   game_id: string
+}) {
+   const [game, setGame] = useState<Game | null>(game_data)
 
    useEffect(() => {
       const socket = io(process.env.NEXT_PUBLIC_BASE_URL!, {
@@ -58,16 +44,15 @@ export default function GameBoard({ session }: { session: Session }) {
       socket.on('connect', () => {
          console.log('user connected')
       })
-      if (params?.game_id) {
-         socket.on(`pursuit-of-card-${params.game_id}`, (data) => {
-            playMove()
-            setGame(data)
-         })
-      }
+
+      socket.on(`pursuit-of-card-${game_id}`, (data) => {
+         playMove()
+         setGame(data)
+      })
       return () => {
          socket.close()
       }
-   }, [params.game_id])
+   }, [game_id])
 
    let mydetails: Player | null = null,
       isHost: boolean = false,
@@ -97,7 +82,7 @@ export default function GameBoard({ session }: { session: Session }) {
 
    const handleStart = async () => {
       try {
-         await startGame(params.game_id as string)
+         await startGame(game_id)
          toast.success('Hurray! game is started')
       } catch (error) {
          if (error instanceof Error) {
@@ -110,7 +95,7 @@ export default function GameBoard({ session }: { session: Session }) {
 
    const handlePlayAgain = async () => {
       try {
-         await playAgain(params.game_id as string)
+         await playAgain(game_id)
          toast.success('Hurray! restarted game')
       } catch (error) {
          if (error instanceof Error) {
@@ -361,7 +346,7 @@ export default function GameBoard({ session }: { session: Session }) {
                            key={i}
                            index={i}
                            isMyMove={isMyMove}
-                           game_id={params.game_id as string}
+                           game_id={game_id}
                            isGameEnd={isGameEnd}
                         >
                            {card === 'circle' && (
