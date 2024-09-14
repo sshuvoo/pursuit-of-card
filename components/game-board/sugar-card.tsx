@@ -1,10 +1,11 @@
-import { IconArrowNarrowRight, IconBan } from '@tabler/icons-react'
+import { IconArrowNarrowRight, IconBan, IconLoader } from '@tabler/icons-react'
 import { ReactNode, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Player } from '@/types'
 import { moveCard } from '@/actions/move-card'
 import toast from 'react-hot-toast'
 import { playClick } from '@/utils/play-sound'
+import { useFormStatus } from 'react-dom'
 
 export function SugarCard({
    children,
@@ -43,7 +44,8 @@ export function SugarCard({
    }
 
    return (
-      <motion.div
+      <motion.form
+         action={handleMove}
          layoutId={`card-first-to-second-${index}`}
          transition={{ type: 'spring', stiffness: 100, damping: 50 }}
          onMouseEnter={() => setIsOpen(true)}
@@ -52,18 +54,35 @@ export function SugarCard({
       >
          {children}
          {isOpen && (
-            <button
-               onClick={handleMove}
-               disabled={!isMyMove || !isPassableCard}
-               className="absolute inset-0 flex items-center justify-center bg-black/40 text-xs font-medium text-black backdrop-blur-sm"
-            >
-               {isMyMove && isPassableCard ? (
-                  <IconArrowNarrowRight className="h-10 w-10 text-green-500" />
-               ) : (
-                  <IconBan className="h-10 w-10 text-red-500" />
-               )}
-            </button>
+            <CardButton isMyMove={isMyMove} isPassableCard={isPassableCard} />
          )}
-      </motion.div>
+      </motion.form>
+   )
+}
+
+function CardButton({
+   isMyMove,
+   isPassableCard,
+}: {
+   isMyMove: boolean
+   isPassableCard: boolean
+}) {
+   const { pending } = useFormStatus()
+   return (
+      <button
+         type="submit"
+         disabled={!isMyMove || !isPassableCard || pending}
+         className="absolute inset-0 flex items-center justify-center bg-black/40 text-xs font-medium text-black backdrop-blur-sm"
+      >
+         {isMyMove && isPassableCard ? (
+            pending ? (
+               <IconLoader className="h-10 w-10 animate-spin text-green-500" />
+            ) : (
+               <IconArrowNarrowRight className="h-10 w-10 text-green-500" />
+            )
+         ) : (
+            <IconBan className="h-10 w-10 text-red-500" />
+         )}
+      </button>
    )
 }
