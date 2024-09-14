@@ -1,10 +1,12 @@
 export function playClick() {
    const audio = new Audio('/assets/audio/mouse-click-sound.mp3')
+   audio.volume = 0.3
    audio.play()
 }
 
 export function playMove() {
    const audio = new Audio('/assets/audio/card-move.wav')
+   audio.volume = 0.3
    audio.play()
 }
 
@@ -25,7 +27,7 @@ export function playGameOver() {
 
 export function playMessageNotification() {
    const audio = new Audio('/assets/audio/message-notification.mp3')
-   audio.volume = 0.5
+   audio.volume = 0.3
    audio.play()
 }
 

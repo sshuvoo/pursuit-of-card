@@ -30,10 +30,10 @@ export function GameChatForm({ game_id }: { game_id: string }) {
       <form
          ref={formRef}
          action={handleSend}
-         className="relative md:h-16 h-12 w-full max-w-[700px]"
+         className="relative h-12 w-full max-w-3xl md:h-16"
       >
          <input
-            className="h-full w-full md:rounded-full rounded-lg bg-[#1e1e1e] md:px-8 px-4 md:text-xl focus:outline-none"
+            className="h-full w-full rounded-lg bg-[#1e1e1e] px-4 focus:outline-none md:rounded-full md:px-8 md:text-xl"
             placeholder="Have fun while playing..."
             name="message"
          />

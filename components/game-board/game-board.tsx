@@ -22,12 +22,13 @@ import {
    IconUmbrella,
    IconUserCircle,
 } from '@tabler/icons-react'
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { io } from 'socket.io-client'
 import { GameChatForm } from './game-chat-form'
 import { SugarCard } from './sugar-card'
+import { bubbleVariants } from '@/framer-variants/chat-item'
 
 interface Session {
    guest_id: string
@@ -187,18 +188,29 @@ export default function GameBoard({
                </button>
             )}
          </div>
-         <div className="flex w-full max-w-3xl flex-col justify-between gap-4 rounded-md bg-[#1818188a] p-4 backdrop-blur-md xl:gap-8 xl:p-8">
+         <div className="flex w-full max-w-3xl flex-col justify-between gap-6 rounded-md bg-[#1818188a] p-4 backdrop-blur-md xl:gap-8 xl:p-8">
             <div className="flex justify-evenly">
                <div className="flex flex-col items-center">
                   <div className="relative">
-                     {playerMessage3 && (
-                        <div
-                           className="absolute -top-10 left-1/2 z-[100] w-52 -translate-x-1/2 rounded-lg border border-[#3c3c3c] bg-green-50 p-2 text-xs font-semibold text-green-800 dark:bg-black dark:text-green-400"
-                           role="alert"
-                        >
-                           {playerMessage3.message}
-                        </div>
-                     )}
+                     <AnimatePresence>
+                        {playerMessage3 && (
+                           <motion.div
+                              initial="hidden"
+                              animate={'visible'}
+                              exit="exit"
+                              variants={bubbleVariants}
+                              className="absolute bottom-20 z-[100] w-52 rounded-lg border border-[#3c3c3c] bg-black text-xs font-semibold text-green-400"
+                              role="alert"
+                           >
+                              <div className="relative p-2">
+                                 <p className="break-words">
+                                    {playerMessage3.message}
+                                 </p>
+                                 <span className="absolute left-5 -bottom-2 z-[110] h-4 w-4 rotate-45 border-b border-r border-[#3c3c3c] bg-black"></span>
+                              </div>
+                           </motion.div>
+                        )}
+                     </AnimatePresence>
                      {joinedPlayers[3]?.status === 'winner' && (
                         <>
                            <IconCrown
@@ -238,14 +250,25 @@ export default function GameBoard({
                </div>
                <div className="flex flex-col items-center">
                   <div className="relative">
-                     {playerMessage2 && (
-                        <div
-                           className="absolute -top-10 right-1/2 z-[100] w-52 translate-x-1/2 rounded-lg border border-[#3c3c3c] bg-green-50 p-2 text-xs text-green-800 dark:bg-black dark:text-green-400"
-                           role="alert"
-                        >
-                           {playerMessage2.message}
-                        </div>
-                     )}
+                     <AnimatePresence>
+                        {playerMessage2 && (
+                           <motion.div
+                              initial="hidden"
+                              animate={'visible'}
+                              exit="exit"
+                              variants={bubbleVariants}
+                              className="absolute bottom-20 right-0 z-[100] w-52 rounded-lg border border-[#3c3c3c] bg-black text-xs font-semibold text-green-400"
+                              role="alert"
+                           >
+                              <div className="relative p-2">
+                                 <p className="break-words">
+                                    {playerMessage2?.message}
+                                 </p>
+                                 <span className="absolute right-5 -bottom-2 z-[110] h-4 w-4 rotate-45 border-b border-r border-[#3c3c3c] bg-black"></span>
+                              </div>
+                           </motion.div>
+                        )}
+                     </AnimatePresence>
                      {joinedPlayers[2]?.status === 'winner' && (
                         <>
                            <IconCrown
@@ -287,14 +310,25 @@ export default function GameBoard({
             <div className="flex items-center justify-between">
                <div className="flex flex-col items-center">
                   <div className="relative">
-                     {playerMessage4 && (
-                        <div
-                           className="absolute -bottom-12 left-0 z-[100] w-52 rounded-lg border border-[#3c3c3c] bg-green-50 p-2 text-xs text-green-800 dark:bg-black dark:text-green-400"
-                           role="alert"
-                        >
-                           {playerMessage4.message}
-                        </div>
-                     )}
+                     <AnimatePresence>
+                        {playerMessage4 && (
+                           <motion.div
+                              initial="hidden"
+                              animate={'visible'}
+                              exit="exit"
+                              variants={bubbleVariants}
+                              className="absolute bottom-20 z-[100] w-52 rounded-lg border border-[#3c3c3c] bg-black text-xs font-semibold text-green-400"
+                              role="alert"
+                           >
+                              <div className="relative p-2">
+                                 <p className="break-words">
+                                    {playerMessage4?.message}
+                                 </p>
+                                 <span className="absolute left-5 -bottom-2 z-[110] h-4 w-4 rotate-45 border-b border-r border-[#3c3c3c] bg-black"></span>
+                              </div>
+                           </motion.div>
+                        )}
+                     </AnimatePresence>
                      {joinedPlayers[4]?.status === 'winner' && (
                         <>
                            <IconCrown
@@ -343,14 +377,25 @@ export default function GameBoard({
                </div>
                <div className="flex flex-col items-center">
                   <div className="relative">
-                     {playerMessage1 && (
-                        <div
-                           className="absolute -bottom-12 right-0 z-[100] w-52 rounded-lg border border-[#3c3c3c] bg-green-50 p-2 text-xs text-green-800 dark:bg-black dark:text-green-400"
-                           role="alert"
-                        >
-                           {playerMessage1.message}
-                        </div>
-                     )}
+                     <AnimatePresence>
+                        {playerMessage1 && (
+                           <motion.div
+                              initial="hidden"
+                              animate={'visible'}
+                              exit="exit"
+                              variants={bubbleVariants}
+                              className="absolute bottom-20 right-0 z-[100] w-52 rounded-lg border border-[#3c3c3c] bg-black text-xs font-semibold text-green-400"
+                              role="alert"
+                           >
+                              <div className="relative p-2">
+                                 <p className="break-words">
+                                    {playerMessage1?.message}
+                                 </p>
+                                 <span className="absolute right-5 -bottom-2 z-[110] h-4 w-4 rotate-45 border-b border-r border-[#3c3c3c] bg-black"></span>
+                              </div>
+                           </motion.div>
+                        )}
+                     </AnimatePresence>
                      {joinedPlayers[1]?.status === 'winner' && (
                         <>
                            <IconCrown

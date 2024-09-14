@@ -15,7 +15,7 @@ export default async function GuestLogin() {
          <JoinGameForm />
          <div className="flex gap-2">
             <Link className="underline" href={'/'}>
-               Host a game & enjoy with friends
+               Host a game
             </Link>
             {'.'}
             <Link className="underline" href={'/guidelines'}>
