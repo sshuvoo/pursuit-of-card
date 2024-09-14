@@ -23,7 +23,6 @@ import {
    IconUserCircle,
 } from '@tabler/icons-react'
 import { motion } from 'framer-motion'
-import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { io } from 'socket.io-client'
@@ -187,9 +186,6 @@ export default function GameBoard({
                   Play Again
                </button>
             )}
-            <Link className="underline" href={'/guidelines'}>
-               Guidelines
-            </Link>
          </div>
          <div className="flex w-full max-w-3xl flex-col justify-between gap-4 rounded-md bg-[#1818188a] p-4 backdrop-blur-md xl:gap-8 xl:p-8">
             <div className="flex justify-evenly">
@@ -197,7 +193,7 @@ export default function GameBoard({
                   <div className="relative">
                      {playerMessage3 && (
                         <div
-                           className="absolute -top-10 left-1/2 z-[100] w-52 -translate-x-1/2 rounded-lg border border-[#3c3c3c] bg-green-50 p-2 text-xs text-green-800 dark:bg-black dark:text-green-400 font-semibold"
+                           className="absolute -top-10 left-1/2 z-[100] w-52 -translate-x-1/2 rounded-lg border border-[#3c3c3c] bg-green-50 p-2 text-xs font-semibold text-green-800 dark:bg-black dark:text-green-400"
                            role="alert"
                         >
                            {playerMessage3.message}

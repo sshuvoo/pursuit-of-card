@@ -4,6 +4,7 @@ import { joinGame } from '@/actions/join-game'
 import { IconDeviceGamepad2 } from '@tabler/icons-react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
+import SubmitButton from '../button/submit-button'
 
 export function JoinGameForm() {
    const router = useRouter()
@@ -26,19 +27,18 @@ export function JoinGameForm() {
    }
 
    return (
-      <form action={handleJoin} className="relative h-16 w-full max-w-[700px]">
+      <form
+         action={handleJoin}
+         className="relative h-12 w-full max-w-[700px] md:h-16"
+      >
          <input
-            className="h-full w-full rounded-full bg-[#1e1e1e] px-8 text-xl focus:outline-none"
+            className="h-full w-full rounded-lg bg-[#1e1e1e] px-4 focus:outline-none md:rounded-full md:px-8 md:text-xl"
             placeholder="Enter game ID"
             name="game_id"
          />
-         <button
-            className="absolute right-0 top-0 flex h-full items-center gap-3 rounded-full bg-[#2d2d2d] px-8 text-xl"
-            type="submit"
-         >
-            <span>Join</span>
+         <SubmitButton title="Join" loadingMessage="Joinning">
             <IconDeviceGamepad2 />
-         </button>
+         </SubmitButton>
       </form>
    )
 }

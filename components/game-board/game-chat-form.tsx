@@ -4,13 +4,13 @@ import { sendMessage } from '@/actions/send-message'
 import { IconArrowNarrowRight } from '@tabler/icons-react'
 import { useRef } from 'react'
 import toast from 'react-hot-toast'
+import SubmitButton from '../button/submit-button'
 
 export function GameChatForm({ game_id }: { game_id: string }) {
    const formRef = useRef<HTMLFormElement>(null)
 
    const handleSend = async (formData: FormData) => {
       const message = formData.get('message')?.toString() || ''
-      console.log(message)
       if (message) {
          try {
             await sendMessage(message, game_id)
@@ -30,20 +30,16 @@ export function GameChatForm({ game_id }: { game_id: string }) {
       <form
          ref={formRef}
          action={handleSend}
-         className="relative h-16 w-full max-w-[700px]"
+         className="relative md:h-16 h-12 w-full max-w-[700px]"
       >
          <input
-            className="h-full w-full rounded-full bg-[#1e1e1e] px-8 text-xl focus:outline-none"
+            className="h-full w-full md:rounded-full rounded-lg bg-[#1e1e1e] md:px-8 px-4 md:text-xl focus:outline-none"
             placeholder="Have fun while playing..."
             name="message"
          />
-         <button
-            className="absolute right-0 top-0 flex h-full items-center rounded-full bg-[#2d2d2d] px-8 text-xl"
-            type="submit"
-         >
-            <span>Send</span>
+         <SubmitButton loadingMessage="Sending" title="Send">
             <IconArrowNarrowRight />
-         </button>
+         </SubmitButton>
       </form>
    )
 }

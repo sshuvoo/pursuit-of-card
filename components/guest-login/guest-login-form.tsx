@@ -4,6 +4,7 @@ import { login } from '@/actions/login'
 import { IconArrowNarrowRight } from '@tabler/icons-react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
+import SubmitButton from '../button/submit-button'
 
 export function GuestLoginForm() {
    const router = useRouter()
@@ -23,19 +24,18 @@ export function GuestLoginForm() {
    }
 
    return (
-      <form action={handleLogin} className="relative h-16 w-full max-w-[700px]">
+      <form
+         action={handleLogin}
+         className="relative h-12 w-full max-w-[700px] md:h-16"
+      >
          <input
-            className="h-full w-full rounded-full bg-[#1e1e1e] px-8 text-xl focus:outline-none"
+            className="h-full w-full rounded-lg bg-[#1e1e1e] px-4 focus:outline-none md:rounded-full md:px-8 md:text-xl"
             placeholder="Enter your name"
             name="guest_name"
          />
-         <button
-            className="absolute right-0 top-0 flex h-full items-center rounded-full bg-[#2d2d2d] px-8 text-xl"
-            type="submit"
-         >
-            <span>Guest Login</span>
+         <SubmitButton title="Guest Login" loadingMessage="Connecting">
             <IconArrowNarrowRight />
-         </button>
+         </SubmitButton>
       </form>
    )
 }

@@ -17,6 +17,7 @@ export default async function GuestLogin() {
             <Link className="underline" href={'/'}>
                Host a game & enjoy with friends
             </Link>
+            {'.'}
             <Link className="underline" href={'/guidelines'}>
                Guidelines
             </Link>

@@ -11,8 +11,8 @@ import Link from 'next/link'
 
 const GameGuidelines = () => {
    return (
-      <div className="min-h-screen px-5 py-10 text-gray-200 md:px-20">
-         <div className="mx-auto max-w-4xl rounded-lg bg-[#1e1e1e75] p-8 shadow-lg backdrop-blur">
+      <div className="h-screen overflow-y-auto py-2 text-gray-200 md:px-20 xl:px-5 xl:py-10">
+         <div className="mx-auto max-w-4xl rounded-lg p-2 shadow-lg md:backdrop-blur xl:bg-[#1e1e1e75] xl:p-8">
             <h1 className="mb-6 text-center text-4xl font-bold">
                Game Guidelines
             </h1>
