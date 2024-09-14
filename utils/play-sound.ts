@@ -3,11 +3,6 @@ export function playClick() {
    audio.play()
 }
 
-export function playBackgroundMusic() {
-   const audio = new Audio('/assets/audio/pink-soldier.mp3')
-   audio.play()
-}
-
 export function playMove() {
    const audio = new Audio('/assets/audio/card-move.wav')
    audio.play()

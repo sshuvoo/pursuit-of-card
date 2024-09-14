@@ -166,7 +166,7 @@ export default function GameBoard({
       <>
          <div className="flex w-full max-w-3xl justify-between">
             {!isNotStarted && turnPlayer && !isGameEnd && (
-               <h2 className="font-medium text-white/70 xl:text-3xl">
+               <h2 className="text-xl font-semibold text-white/90">
                   Move : {turnPlayer.guest_name}
                </h2>
             )}
