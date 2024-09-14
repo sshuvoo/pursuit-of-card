@@ -20,7 +20,7 @@ export default function SubmitButton({
          type="submit"
       >
          <span>{pending ? loadingMessage : title}</span>
-         {pending ? <IconLoader /> : children}
+         {pending ? <IconLoader className="animate-spin" /> : children}
       </button>
    )
 }
