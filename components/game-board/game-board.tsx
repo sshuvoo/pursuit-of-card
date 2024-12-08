@@ -125,6 +125,13 @@ export default function GameBoard({
    isHost = mydetails?.role === 'host-player'
 
    const handleStart = async () => {
+      if (game && game.player.length < 5) {
+         const requiredPlayers = 5 - game.player.length
+         toast.error(
+            `Add ${requiredPlayers} more ${requiredPlayers > 1 ? 'players' : 'player'} to start`,
+         )
+         return
+      }
       try {
          await startGame(game_id)
          toast.success('Hurray! game is started')
@@ -174,15 +181,15 @@ export default function GameBoard({
             {isNotStarted && isHost && (
                <button
                   onClick={handleStart}
-                  className="rounded-md bg-green-400 px-4 py-2 font-medium text-black"
+                  className="rounded-md bg-gray-500/50 px-4 py-2 font-medium text-white backdrop-blur"
                >
-                  Shuffling Cards And Start
+                  Shuffle Cards And Start
                </button>
             )}
             {isGameEnd && isHost && (
                <button
                   onClick={handlePlayAgain}
-                  className="rounded-md bg-green-400 px-4 py-2 font-medium text-black"
+                  className="rounded-md bg-gray-500/50 px-4 py-2 font-medium text-white backdrop-blur"
                >
                   Play Again
                </button>
@@ -206,7 +213,7 @@ export default function GameBoard({
                                  <p className="break-words">
                                     {playerMessage3.message}
                                  </p>
-                                 <span className="absolute left-5 -bottom-2 z-[110] h-4 w-4 rotate-45 border-b border-r border-[#3c3c3c] bg-black"></span>
+                                 <span className="absolute -bottom-2 left-5 z-[110] h-4 w-4 rotate-45 border-b border-r border-[#3c3c3c] bg-black"></span>
                               </div>
                            </motion.div>
                         )}
@@ -264,7 +271,7 @@ export default function GameBoard({
                                  <p className="break-words">
                                     {playerMessage2?.message}
                                  </p>
-                                 <span className="absolute right-5 -bottom-2 z-[110] h-4 w-4 rotate-45 border-b border-r border-[#3c3c3c] bg-black"></span>
+                                 <span className="absolute -bottom-2 right-5 z-[110] h-4 w-4 rotate-45 border-b border-r border-[#3c3c3c] bg-black"></span>
                               </div>
                            </motion.div>
                         )}
@@ -324,7 +331,7 @@ export default function GameBoard({
                                  <p className="break-words">
                                     {playerMessage4?.message}
                                  </p>
-                                 <span className="absolute left-5 -bottom-2 z-[110] h-4 w-4 rotate-45 border-b border-r border-[#3c3c3c] bg-black"></span>
+                                 <span className="absolute -bottom-2 left-5 z-[110] h-4 w-4 rotate-45 border-b border-r border-[#3c3c3c] bg-black"></span>
                               </div>
                            </motion.div>
                         )}
@@ -391,7 +398,7 @@ export default function GameBoard({
                                  <p className="break-words">
                                     {playerMessage1?.message}
                                  </p>
-                                 <span className="absolute right-5 -bottom-2 z-[110] h-4 w-4 rotate-45 border-b border-r border-[#3c3c3c] bg-black"></span>
+                                 <span className="absolute -bottom-2 right-5 z-[110] h-4 w-4 rotate-45 border-b border-r border-[#3c3c3c] bg-black"></span>
                               </div>
                            </motion.div>
                         )}
